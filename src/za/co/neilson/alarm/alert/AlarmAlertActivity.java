@@ -31,6 +31,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class AlarmAlertActivity extends Activity implements OnClickListener {
 
@@ -241,20 +243,10 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 			answerBuilder.append(button);
 			answerView.setText(answerBuilder.toString());
 			if (isAnswerCorrect()) {
-				alarmActive = false;
-				if (vibrator != null)
-					vibrator.cancel();
-				try {
-					mediaPlayer.stop();
-				} catch (IllegalStateException ise) {
-
-				}
-				try {
-					mediaPlayer.release();
-				} catch (Exception e) {
-
-				}
-				this.finish();
+				answerView.setText("CORRECT! closing in 30 seconds");
+				Timer timer = new Timer();
+				timer.schedule(new StopTask(this), 30000);
+				
 			}
 		}
 		if (answerView.getText().length() >= answerString.length()
@@ -263,6 +255,23 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 		} else {
 			answerView.setTextColor(Color.BLACK);
 		}
+	}
+	
+	protected void end(){
+		alarmActive = false;
+		if (vibrator != null)
+			vibrator.cancel();
+		try {
+			mediaPlayer.stop();
+		} catch (IllegalStateException ise) {
+
+		}
+		try {
+			mediaPlayer.release();
+		} catch (Exception e) {
+
+		}
+		this.finish();
 	}
 
 	public boolean isAnswerCorrect() {
@@ -277,6 +286,21 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 			return false;
 		}
 		return correct;
+	}
+
+}
+
+class StopTask extends TimerTask{
+
+	AlarmAlertActivity myAlert;
+	
+	StopTask(AlarmAlertActivity a){
+		myAlert = a;
+	}
+	
+	@Override
+	public void run() {
+		myAlert.end();
 	}
 
 }
